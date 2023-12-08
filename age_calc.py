@@ -1,9 +1,13 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, \
-    QGridLayout, QLineEdit, QPushButton
+from PyQt6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QGridLayout,
+    QLineEdit,
+    QPushButton,
+)
 import sys
 from datetime import datetime
-
-
 
 
 class AgeCalculator(QWidget):
@@ -25,7 +29,7 @@ class AgeCalculator(QWidget):
         self.output_label = QLabel("")
 
         # add widget to grid
-        
+
         grid.addWidget(name_label, 0, 0)
         grid.addWidget(self.name_line_edit, 0, 1)
         grid.addWidget(date_of_birth_label, 1, 0)
@@ -40,7 +44,6 @@ class AgeCalculator(QWidget):
         year_of_birth = int(self.date_of_birth_line_edit.text().split("/")[2])
         age = current_year - year_of_birth
         self.output_label.setText(f"{self.name_line_edit.text()} is {age} years old.")
-
 
 
 app = QApplication(sys.argv)

@@ -1,6 +1,14 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, \
-    QGridLayout, QLineEdit, QPushButton, QComboBox
+from PyQt6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QGridLayout,
+    QLineEdit,
+    QPushButton,
+    QComboBox,
+)
 import sys
+
 
 class AverageSpeedCalculator(QWidget):
     def __init__(self):
@@ -17,7 +25,7 @@ class AverageSpeedCalculator(QWidget):
         self.grid.addWidget(self.distance_input, 0, 1)
 
         self.combo = QComboBox()
-        self.combo.addItems(['km', 'miles'])
+        self.combo.addItems(["km", "miles"])
         self.grid.addWidget(self.combo, 0, 2)
 
         self.time_label = QLabel("Time (hours):")
@@ -48,7 +56,10 @@ class AverageSpeedCalculator(QWidget):
 
             self.average_speed_label.setText(f"Average Speed: {speed:.2f} {unit}/h")
         except ValueError:
-            self.average_speed_label.setText("Please enter valid numbers for distance and time.")
+            self.average_speed_label.setText(
+                "Please enter valid numbers for distance and time."
+            )
+
 
 app = QApplication(sys.argv)
 calculator = AverageSpeedCalculator()
