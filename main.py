@@ -1,10 +1,7 @@
-import typing
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (
     QApplication,
-    QWidget,
     QLabel,
-    QGridLayout,
     QLineEdit,
     QPushButton,
     QComboBox,
@@ -15,6 +12,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QToolBar,
     QStatusBar,
+    QMessageBox,
 )
 
 from PyQt6.QtGui import QAction, QIcon
@@ -43,6 +41,7 @@ class MainWindow(QMainWindow):
         edit_menu_item.addAction(search_action)
 
         about_action = QAction("About", self)
+        about_action.triggered.connect(self.about_action)
         help_menu_item.addAction(about_action)
 
         # Create the table widget
@@ -65,6 +64,11 @@ class MainWindow(QMainWindow):
 
         # Detect a cell click
         self.table.cellClicked.connect(self.cell_clicked)
+
+    def about_action(self):
+        """Open the about dialog"""
+        dialog = AboutDialog()
+        dialog.exec()
 
     def search_action(self):
         """Open the search dialog"""
@@ -115,6 +119,18 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
 
+class AboutDialog(QMessageBox):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("About")
+
+        content = """
+        Student Management System
+        Version 1.0
+        """
+        self.setText(content)
+
+
 class EditDialog(QDialog):
     """
     Dialog for editing student data.
@@ -132,26 +148,28 @@ class EditDialog(QDialog):
         index = main_window.table.currentRow()
         self.student_id = main_window.table.item(index, 0).text()
         self.holder_name = main_window.table.item(index, 1).text()
+        self.holder_course = main_window.table.item(index, 2).text()
         self.holder_mobile = main_window.table.item(index, 3).text()
         # Input field for student name
-        self.student_name = QLineEdit()
-        self.student_name.setPlaceholderText(f"{self.holder_name}")
+        self.student_name = QLineEdit(self.holder_name)
         layout.addWidget(self.student_name)
 
         # Dropdown for student course
         self.student_course = QComboBox()
         courses = ["Biology", "Math", "Astronomy", "Physics"]
         self.student_course.addItems(courses)
+        self.student_course.setCurrentText(self.holder_course)
         layout.addWidget(self.student_course)
 
         # Input field for student mobile
-        self.student_mobile = QLineEdit()
+        self.student_mobile = QLineEdit(self.holder_mobile)
         self.student_mobile.setPlaceholderText(f"{self.holder_mobile}")
         layout.addWidget(self.student_mobile)
 
         # Submit button
         button = QPushButton("Submit")
         button.clicked.connect(self.edit_student)
+        button.clicked.connect(self.close)
         layout.addWidget(button)
 
     def edit_student(self):
@@ -170,9 +188,43 @@ class EditDialog(QDialog):
         connection.commit()
         connection.close()
         main_window.load_data()
-        
+
+
 class DeleteDialog(QDialog):
-    pass
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Delete Student's Data")
+
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        confirmation = QLabel("Are you sure you want to delete?")
+        layout.addWidget(confirmation)
+        yes_button = QPushButton("Yes")
+        yes_button.clicked.connect(self.delete_student)
+        layout.addWidget(yes_button)
+
+        no_button = QPushButton("No")
+        no_button.clicked.connect(self.close)
+        layout.addWidget(no_button)
+
+    def delete_student(self):
+        index = main_window.table.currentRow()
+        student_id = main_window.table.item(index, 0).text()
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        query = "DELETE FROM students WHERE id=?"
+        cursor.execute(query, (student_id,))
+        connection.commit()
+        connection.close()
+        main_window.load_data()
+
+        self.close()
+
+        confirmation_widget = QMessageBox()
+        confirmation_widget.setWindowTitle("Success")
+        confirmation_widget.setText("Student's data deleted successfully!")
+        confirmation_widget.exec()
 
 
 class SearchDialog(QDialog):
